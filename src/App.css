@@ -1,0 +1,194 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+html {
+  border: 10px solid #eee;
+  min-height: 100%;
+}
+
+body {
+  font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
+    Bitstream Vera Sans Mono, Courier New, monospace, serif;
+  text-rendering: geometricPrecision;
+  background: #fcfcfc;
+  color: #222;
+}
+
+section {
+  overflow: scroll;
+  height: 100%;
+  min-width: 880px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.content {
+  max-width: 1065px;
+  padding-top: 10vh;
+  padding-bottom: 10vh;
+  margin: auto;
+}
+
+header {
+  border-right: 2px solid #eee;
+  position: fixed;
+  width: 185px;
+  height: 100%;
+  padding-right: 30px;
+  padding-left: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: right;
+  top: 0px;
+}
+
+img {
+  max-width: 420px;
+  border-radius: 5px;
+}
+
+.about {
+  box-sizing: border-box;
+}
+
+header h2 {
+  font-size: 20px;
+  letter-spacing: 1px;
+  color: rgb(112, 128, 216);
+  margin-top: 10px;
+}
+
+article h2 {
+  max-width: 250px;
+}
+
+header h1 {
+  margin-top: 0px;
+  font-size: 36px;
+  margin-bottom: -4px;
+}
+
+p {
+  font-size: 14px;
+  line-height: 1.3em;
+  margin-bottom: 25px;
+}
+
+article {
+  margin-left: 21vw;
+  border: 1px solid;
+  border-bottom: none;
+  border-radius: 5px;
+  padding: 50px;
+  max-width: 500px;
+  display: flex;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.file-sharing-container {
+  position: relative;
+}
+
+.file-sharing-interface {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.download-percentage {
+  font-size: 12px;
+  position: relative;
+  text-align: end;
+  margin-right: 20px;
+}
+
+.filename-size {
+  user-select: none;
+  /* cursor: url("./assets/cursor.cur"), auto; */
+}
+
+.filename-size:hover {
+  font-weight: bolder;
+}
+
+.browse-button:hover {
+  border-color: darkcyan !important;
+}
+
+.share-link {
+  width: 250px;
+  position: relative;
+  right: 65px;
+  margin-bottom: 18px;
+  border-radius: 5px;
+  height: 25px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.share-link:hover {
+  font-weight: bold;
+  border-color: teal;
+}
+
+.status-bar {
+  display: flex;
+  width: 100px;
+  position: absolute;
+  top: 12px;
+  height: 27px;
+  left: 18%;
+}
+
+.small-article {
+  margin-left: 15px;
+  text-align: center;
+  max-width: 45vw;
+}
+
+.small-header {
+  position: relative;
+  text-align: center;
+  border-right: none;
+  margin-left: 30px;
+}
+
+.small-h2 {
+  font-size: 12px;
+}
+
+.small-ptag {
+  width: 205px;
+  font-size: 12px;
+  overflow: hidden;
+}
+
+.small-link {
+  width: 220px;
+  right: 50px;
+}
+
+.small-link {
+  width: 220px;
+  right: 50px;
+}
+
+.small-status-bar {
+  width: 5px;
+  left: 8px;
+  font-size: 9px;
+}
