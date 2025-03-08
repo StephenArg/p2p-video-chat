@@ -9,7 +9,7 @@ export const updateDarkmode = (darkmodeBool) => {
     if (html) html.style.border = "10px solid #151226";
     if (body)
       body.style.background = "#151226";
-      body.style.color = "antiquewhite";
+    body.style.color = "antiquewhite";
     if (headerH2) headerH2.style.color = "#079a8c";
     for (let i = 0; i < aTags.length; i++) if (aTags && aTags[i]) aTags[i].style.color = "aquamarine";
   } else {
@@ -18,7 +18,7 @@ export const updateDarkmode = (darkmodeBool) => {
     if (html) html.style.border = "10px solid #eee";
     if (body)
       body.style.background = "#fcfcfc";
-      body.style.color = "#222";
+    body.style.color = "#222";
     if (headerH2) headerH2.style.color = "rgb(112, 128, 216)";
     for (let i = 0; i < aTags.length; i++) if (aTags && aTags[i]) aTags[i].style.color = "#551a8b";
   }
@@ -27,7 +27,7 @@ export const updateDarkmode = (darkmodeBool) => {
 export const onResize = () => {
   const width = window.innerWidth;
   const header = document.getElementsByTagName("header")[0];
-  const h2 = document.getElementById("file-sharing-h2");
+  const h2 = document.getElementById("video-chat-h2");
   const articles = document.getElementsByTagName("article");
   const pTags = document.getElementsByClassName("filename-size");
   const shareLink = document.getElementsByClassName("share-link")[0];
@@ -94,5 +94,13 @@ export const isActiveIceCandidatePair = async (peerConnection) => {
   } catch (error) {
     console.error('Error checking active ICE candidate pair:', error);
     return false;
+  }
+};
+
+export const setRoomIdInUrl = (roomId) => {
+  if (roomId) {
+    window.history.replaceState({}, '', window.location.pathname + `?id=${roomId}`);
+  } else {
+    window.history.replaceState({}, '', window.location.pathname);
   }
 };

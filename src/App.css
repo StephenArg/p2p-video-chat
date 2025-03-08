@@ -1,8 +1,8 @@
 #root {
   max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  margin-left: 16vw;
   text-align: center;
+  width: 100%;
 }
 
 .card {
@@ -26,18 +26,15 @@ body {
   color: #222;
 }
 
-section {
+/* section {
   overflow: scroll;
   height: 100%;
   min-width: 880px;
   -webkit-overflow-scrolling: touch;
-}
+} */
 
 .content {
-  max-width: 1065px;
-  padding-top: 10vh;
-  padding-bottom: 10vh;
-  margin: auto;
+  padding-bottom: 2vh;
 }
 
 header {
@@ -47,6 +44,7 @@ header {
   height: 100%;
   padding-right: 30px;
   padding-left: 30px;
+  left: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -86,23 +84,19 @@ p {
   margin-bottom: 25px;
 }
 
-article {
-  margin-left: 21vw;
+.video-chat-container {
   border: 1px solid;
-  border-bottom: none;
   border-radius: 5px;
   padding: 50px;
-  max-width: 500px;
+  width: 100%;
   display: flex;
   justify-content: center;
-  min-height: 200px;
+  min-height: 50vh;
+  overflow-y: auto;
+  height: 82vh;
 }
 
-.file-sharing-container {
-  position: relative;
-}
-
-.file-sharing-interface {
+.video-chat-interface {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -191,4 +185,131 @@ article {
   width: 5px;
   left: 8px;
   font-size: 9px;
+}
+
+.create-room-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 15vh;
+}
+
+.create-room-interface {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 600px;
+}
+
+.create-room-interface h2 {
+  text-align: center;
+}
+
+.create-room-button {
+  color: #222;
+}
+
+.create-room-interface form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.create-room-interface input:hover,
+.create-room-interface button:hover {
+  border-color: darkcyan;
+}
+
+.create-room-interface input:focus {
+  outline: none;
+  border-color: teal;
+  box-shadow: 0 0 5px rgba(0, 128, 128, 0.2);
+}
+
+/* Video Chat Styles */
+.video-chat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.video-container {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #222;
+  aspect-ratio: 16/9;
+}
+
+.video-container video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-container.local-video {
+  border: 2px solid #4a90e2;
+}
+
+.video-controls {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  z-index: 10;
+}
+
+.control-btn {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.control-btn:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.control-btn.muted,
+.control-btn.video-disabled {
+  background-color: #e74c3c;
+}
+
+.video-label {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.video-off {
+  filter: grayscale(100%) brightness(30%);
+}
+
+/* Dark mode support */
+[data-theme='dark'] .video-container {
+  background-color: #111;
+}
+
+[data-theme='dark'] .video-container.local-video {
+  border-color: #2a6bb1;
 }

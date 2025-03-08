@@ -1,27 +1,47 @@
-export const createRoomWithFiles = async (files, setRoomId, setCancelCode, setIsSender, username) => {
-  const res = await fetch("https://sargentina.dev/filesharing/create",
-    {
-      method: "POST",
+window.userState = {
+  userId: null,
+  name: null,
+  members: [],
+}
+
+export const createRoom = async (roomName, setRoomId) => {
+  try {
+    const response = await fetch('https://sargentina.dev/p2p-chat/create', {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        username,
-        files: files.map(e => ({ name: e.name, size: e.size, id: e.id })),
-      })
+      body: JSON.stringify({ name: roomName }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to create room');
     }
-  );
-  const data = await res.json();
-  if (data.ok) {
-    setCancelCode(data.cancelCode);
-    setRoomId(data.roomId);
-    setIsSender(true);
-  } else console.error(data.error);
+
+    const { roomId, userId } = await response.json();
+    window.userState.userId = userId;
+    setRoomId(roomId);
+  } catch (error) {
+    console.error('Error creating room:', error);
+    alert('Failed to create room. Please try again.');
+  }
 };
 
+export const joinRoom = async (roomId) => {
+  const res = await fetch(`https://sargentina.dev/p2p-chat/join`, {
+    method: 'POST',
+    body: JSON.stringify({ roomId }),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
 
-export const updateRoomWithFiles = async (roomId, cancelCode, files) => {
-  const res = await fetch("https://sargentina.dev/filesharing/update",
+  const data = await res.json();
+  return data;
+}
+
+export const deleteRoom = async (roomId, setRoomId) => {
+  const res = await fetch("https://sargentina.dev/p2p-chat/delete",
     {
       method: "POST",
       headers: {
@@ -29,41 +49,18 @@ export const updateRoomWithFiles = async (roomId, cancelCode, files) => {
       },
       body: JSON.stringify({
         roomId,
-        cancelCode,
-        files: files.map(e => ({ name: e.name, size: e.size, id: e.id })),
       })
     }
   );
   const data = await res.json();
   if (data.ok) {
-    console.log("Updated files in room");
-    return data;
-  } else console.error(data.error);
-};
-
-export const deleteRoom = async (roomId, cancelCode, setRoomId, setCancelCode, setIsSender) => {
-  const res = await fetch("https://sargentina.dev/filesharing/delete",
-    {
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/json', // Set the content type to JSON (if you're sending JSON data)
-      },
-      body: JSON.stringify({
-        roomId,
-        cancelCode,
-      })
-    }
-  );
-  const data = await res.json();
-  if (data.ok) {
-    setCancelCode(null)
     setRoomId(null);
-    setIsSender(false);
+
   } else console.error(data.error);
 };
 
-export const changeUsername = async (username, setUsername, roomId, cancelCode) => {
-  const res = await fetch("https://sargentina.dev/filesharing/username",
+export const changeUsername = async (username, setUsername, roomId) => {
+  const res = await fetch("https://sargentina.dev/p2p-chat/username",
     {
       method: "POST",
       headers: {
@@ -71,7 +68,6 @@ export const changeUsername = async (username, setUsername, roomId, cancelCode) 
       },
       body: JSON.stringify({
         roomId,
-        cancelCode,
         username,
       })
     }
@@ -82,8 +78,8 @@ export const changeUsername = async (username, setUsername, roomId, cancelCode) 
   } else console.error(data.error);
 };
 
-export const getCredentials = async (roomId, cancelCode) => {
-  const res = await fetch("https://sargentina.dev/filesharing/credentials",
+export const getCredentials = async (roomId) => {
+  const res = await fetch("https://sargentina.dev/p2p-chat/credentials",
     {
       method: "POST",
       headers: {
@@ -91,66 +87,15 @@ export const getCredentials = async (roomId, cancelCode) => {
       },
       body: JSON.stringify({
         roomId,
-        cancelCode,
       })
     }
   );
   const data = await res.json();
   if (data) {
-    console.log("Received credentials", data["date_created"]);
+    console.log("Received credentials", data);
     return data;
   } else {
     console.error(data.error);
-    return null;
-  }
-};
-
-export const getFiles = async (sa, path) => {
-  const res = await fetch("https://sargentina.dev/filesharing/files",
-    {
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/json', // Set the content type to JSON (if you're sending JSON data)
-      },
-      body: JSON.stringify({ sa, path })
-    }
-  );
-  const data = await res.json();
-  if (data?.ok) {
-    console.log("Received files", data.data);
-    return data.data;
-  } else {
-    console.error(data.error);
-    return null;
-  }
-};
-
-export const downloadFile = async (sa, path) => {
-  try {
-    const res = await fetch("https://sargentina.dev/filesharing/download",
-      {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json', // Set the content type to JSON (if you're sending JSON data)
-        },
-        body: JSON.stringify({ sa, path })
-      }
-    );
-    if (!res.ok) {
-      throw new Error('Network response was not ok');
-    }
-
-    const blob = await res.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = path.split("/").at(-1);
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    window.URL.revokeObjectURL(url); // Free up memory
-  } catch (e) {
-    console.error(e);
     return null;
   }
 };

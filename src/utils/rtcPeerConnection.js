@@ -11,23 +11,95 @@ let configuration = {
 };
 
 const createPeerConnection = async (roomDetails, handleMessage, setConnectionState) => {
-    const { receivers: socketIds, roomId, cancelCode } = roomDetails || {};
-    const token = await getCredentials(roomId, cancelCode);
-    if (token) configuration = token;
-    Object.keys(window.peerConnections).forEach(key => {
-        if (!socketIds.includes(key)) delete window.peerConnections[key];
-    });
+    const { members: socketIds, roomId } = roomDetails || {};
+    const token = await getCredentials(roomId);
+    if (token) {
+        configuration = token;
+        window.configuration = token; // Make it available globally for socket.js
+    }
+
+    // Clean up disconnected peers
+    if (window.peerConnections) {
+        Object.keys(window.peerConnections).forEach(key => {
+            if (!socketIds.includes(key)) {
+                // Close and cleanup connection before deleting
+                const [peerConnection, dataChannel] = window.peerConnections[key];
+                if (dataChannel) dataChannel.close();
+                if (peerConnection) peerConnection.close();
+                delete window.peerConnections[key];
+            }
+        });
+    }
+
+    // Only initiate connections to new peers that don't have a connection yet
+    // This prevents duplicate connections and allows socket.js to handle incoming offers
     for (let i = 0; i < socketIds.length; i++) {
         let remotePeerId = socketIds[i];
-        if (!!window.peerConnections[remotePeerId]) continue;
+        console.log("Checking connection to remotePeerId", remotePeerId);
 
+        // Skip if remotePeerId is the same as the local peer id
+        if (remotePeerId === window.socket.id) {
+            console.log(`Skipping connection to self (${remotePeerId})`);
+            continue;
+        }
+
+        // Skip if connection already exists
+        if (window.peerConnections[remotePeerId]) {
+            console.log(`Connection to ${remotePeerId} already exists, skipping`);
+            continue;
+        }
+
+        console.log(`Initiating connection to ${remotePeerId}`);
         let peerConnection = new RTCPeerConnection(configuration);
 
+        // Add local media tracks to the connection if available
+        if (window.localStream) {
+            window.localStream.getTracks().forEach(track => {
+                peerConnection.addTrack(track, window.localStream);
+            });
+        }
+
+        peerConnection.ontrack = (event) => {
+            console.log("ontrack from rtcPeerConnection.js", event);
+            const customEvent = new CustomEvent('remote-stream-received', {
+                detail: {
+                    stream: event.streams[0],
+                    peerId: remotePeerId
+                }
+            });
+            window.dispatchEvent(customEvent);
+        };
+
         // Create data channel
-        let dataChannel = peerConnection.createDataChannel('send-file', { reliable: true });
+        let dataChannel = peerConnection.createDataChannel('send-message', { reliable: true });
         dataChannel.onmessage = (event) => {
             handleMessage(event.data);
             // this function becomes stale after each new render (since they all only called once here in the function) must be reapplied
+        };
+
+        // Keep track of connection state
+        peerConnection.onconnectionstatechange = async () => {
+            console.log(`Connection state for ${remotePeerId}:`, peerConnection.connectionState);
+            let connectionStateStr = "";
+
+            if (peerConnection.connectionState === 'connected') {
+                console.log('Peers connected successfully');
+                if (await isActiveIceCandidatePair(peerConnection)) {
+                    connectionStateStr = "connected-relay";
+                }
+            }
+            else if (['disconnected', 'failed', 'closed'].includes(peerConnection.connectionState)) {
+                console.log(`Peer ${remotePeerId} disconnected`);
+                // Dispatch a custom event to notify the VideoChat component to remove this stream
+                const disconnectEvent = new CustomEvent('remote-stream-disconnected', {
+                    detail: {
+                        peerId: remotePeerId
+                    }
+                });
+                window.dispatchEvent(disconnectEvent);
+            }
+
+            setConnectionState(connectionStateStr || peerConnection.connectionState);
         };
 
         // Handle ICE candidates
@@ -37,30 +109,19 @@ const createPeerConnection = async (roomDetails, handleMessage, setConnectionSta
             }
         };
 
-        // Create an offer to connect to the remote peer
-        peerConnection.createOffer()
-            .then((offer) => {
-                return peerConnection.setLocalDescription(offer);
-            })
-            .then(() => {
-                window.socket.emit('offer', { to: remotePeerId, offer: peerConnection.localDescription, roomId, cancelCode });
-            })
-            .catch(console.error);
-
-        peerConnection.onconnectionstatechange = async () => {
-            console.log("connectionState", peerConnection.connectionState)
-            let connectionStateStr = "";
-            if (peerConnection.connectionState === 'connected') {
-                console.log('Peers connected successfully');
-                if (await isActiveIceCandidatePair(peerConnection)) {
-                    connectionStateStr = "connected-relay";
-                }
-            }
-            setConnectionState(connectionStateStr || peerConnection.connectionState);
-        };
-
+        // Store the connection
         window.peerConnections[remotePeerId] = [peerConnection, dataChannel];
+
+        // Create an offer
+        try {
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+            console.log(`Sending offer to ${remotePeerId}`);
+            window.socket.emit('offer', { to: remotePeerId, offer: peerConnection.localDescription, roomId });
+        } catch (error) {
+            console.error("Error creating offer:", error);
+        }
     }
-}
+};
 
 export default createPeerConnection;
